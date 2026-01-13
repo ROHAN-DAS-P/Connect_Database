@@ -1,7 +1,6 @@
 const pool = require("../db");
 const { v4: uuidv4 } = require("uuid");
 
-// CREATE USER
 exports.createUser = async (req, res) => {
   const { name, created_by } = req.body;
 
@@ -23,7 +22,6 @@ exports.createUser = async (req, res) => {
   });
 };
 
-// UPDATE USER
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
   const { name, updated_by } = req.body;
@@ -46,7 +44,6 @@ exports.updateUser = async (req, res) => {
   res.json({ message: "User updated successfully" });
 };
 
-// GET ALL USERS
 exports.getUsers = async (req, res) => {
   const [rows] = await pool.execute(
     `SELECT user_id, name, created_by, updated_by, created_at, updated_at
@@ -71,7 +68,6 @@ exports.getUserById = async (req, res) => {
   res.json(rows[0]);
 };
 
-// DELETE USER
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
 
