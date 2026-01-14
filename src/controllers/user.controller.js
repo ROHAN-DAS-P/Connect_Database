@@ -5,7 +5,9 @@ exports.createUser = async (req, res) => {
   const { name, created_by } = req.body;
 
   if (!name || !created_by) {
-    return res.status(400).json({ message: "name and created_by are required" });
+    return res
+      .status(400)
+      .json({ message: "name and created_by are required" });
   }
 
   const userId = uuidv4();
@@ -27,7 +29,9 @@ exports.updateUser = async (req, res) => {
   const { name, updated_by } = req.body;
 
   if (!name || !updated_by) {
-    return res.status(400).json({ message: "name and updated_by are required" });
+    return res
+      .status(400)
+      .json({ message: "name and updated_by are required" });
   }
 
   const [result] = await pool.execute(
@@ -45,21 +49,41 @@ exports.updateUser = async (req, res) => {
 };
 
 exports.getUsers = async (req, res) => {
-  const [rows] = await pool.execute(
-    `SELECT user_id, name, created_by, updated_by, created_at, updated_at
-     FROM users`
+  const page = Math.max(parseInt(req.query.page) || 1, 1);
+  const limit = Math.max(parseInt(req.query.limit) || 10, 1);
+  const offset = (page - 1) * limit;
+
+
+  const [countRows] = await pool.query(
+    "SELECT COUNT(*) AS total FROM users"
   );
-  res.json(rows);
+  const total = countRows[0].total;
+  const totalPages = Math.ceil(total / limit);
+
+
+  const [rows] = await pool.query(
+    `SELECT user_id, name, created_by, updated_by, created_at, updated_at
+     FROM users
+     ORDER BY created_at DESC
+     LIMIT ${offset}, ${limit}`
+  );
+
+  res.json({
+    page,
+    limit,
+    total,
+    totalPages,
+    data: rows
+  });
 };
 
-// GET USER BY ID
+
 exports.getUserById = async (req, res) => {
   const { id } = req.params;
 
-  const [rows] = await pool.execute(
-    "SELECT * FROM users WHERE user_id = ?",
-    [id]
-  );
+  const [rows] = await pool.execute("SELECT * FROM users WHERE user_id = ?", [
+    id,
+  ]);
 
   if (rows.length === 0) {
     return res.status(404).json({ message: "User not found" });
@@ -71,10 +95,9 @@ exports.getUserById = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
 
-  const [result] = await pool.execute(
-    "DELETE FROM users WHERE user_id = ?",
-    [id]
-  );
+  const [result] = await pool.execute("DELETE FROM users WHERE user_id = ?", [
+    id,
+  ]);
 
   if (result.affectedRows === 0) {
     return res.status(404).json({ message: "User not found" });
