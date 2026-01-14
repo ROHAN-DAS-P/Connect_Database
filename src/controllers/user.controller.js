@@ -24,7 +24,6 @@ exports.createUser = async (req, res) => {
   });
 };
 
-
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
   const { name, updated_by } = req.body;
@@ -48,7 +47,6 @@ exports.updateUser = async (req, res) => {
 
   res.json({ message: "User updated successfully" });
 };
-
 
 exports.getUsers = async (req, res) => {
   const page = Math.max(parseInt(req.query.page) || 1, 1);
@@ -93,7 +91,6 @@ exports.getUserById = async (req, res) => {
 
   res.json(rows[0]);
 };
-
 
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
